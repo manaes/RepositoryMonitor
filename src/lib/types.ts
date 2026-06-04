@@ -1,10 +1,13 @@
 export type RepoState =
   | "clean" | "merging" | "rebasing" | "cherry_picking" | "reverting" | "bisecting";
 
+export type VcsKind = "git" | "svn";
+
 export interface RepoRef {
   path: string;
   name: string;
   category: string;
+  vcs: VcsKind;
 }
 
 export interface RepoStatus {
@@ -28,6 +31,7 @@ export interface RepoStatus {
   last_fetch: number | null;
   last_checked: number;
   error: string | null;
+  vcs: VcsKind;
 }
 
 export type TerminalApp = "terminal" | "iterm" | { custom: string };

@@ -48,6 +48,7 @@
 >
   <div class="head">
     <span class="name">{repo.name}</span>
+    {#if repo.vcs === "svn"}<span class="badge vcs">SVN</span>{/if}
     {#if repo.error}
       <span class="badge err">⚠ error</span>
     {:else if repo.branch}
@@ -73,7 +74,7 @@
       {#if repo.worktrees > 1}<span class="badge wt">+{repo.worktrees - 1} worktree</span>{/if}
       {#if clean}<span class="badge ok">✓ clean</span>{/if}
     </div>
-    <div class="meta">{formatFetched(repo.last_fetch, now)}</div>
+    {#if repo.vcs === "git"}<div class="meta">{formatFetched(repo.last_fetch, now)}</div>{/if}
   {:else}
     <div class="meta err">{repo.error}</div>
   {/if}
@@ -148,6 +149,10 @@
   }
   .badge.ok {
     background: var(--badge-ok-bg);
+  }
+  .badge.vcs {
+    background: var(--accent);
+    color: var(--accent-fg);
   }
   .meta {
     font-size: 0.72em;

@@ -8,6 +8,7 @@ function mk(over: Partial<RepoStatus>): RepoStatus {
     upstream: "origin/main", has_upstream: true, ahead: 0, behind: 0,
     staged: 0, modified: 0, untracked: 0, conflicts: 0, stash: 0,
     is_clean: true, state: "clean", worktrees: 1, last_fetch: null, last_checked: 0, error: null,
+    vcs: "git",
     ...over,
   };
 }
