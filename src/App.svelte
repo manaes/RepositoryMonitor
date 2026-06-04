@@ -7,6 +7,7 @@
   import Settings from "./components/Settings.svelte";
   import EmptyState from "./components/EmptyState.svelte";
   import { openAction } from "./lib/tauri";
+  import { checkForUpdate } from "./lib/updater";
   import type { ActionKind, Config, RepoStatus } from "./lib/types";
 
   let search = $state("");
@@ -18,6 +19,7 @@
   onMount(() => {
     theme.init();
     store.init();
+    checkForUpdate(); // 시작 시 업데이트 확인 (fire-and-forget)
     const t = setInterval(() => (now = Math.floor(Date.now() / 1000)), 30000);
     return () => {
       clearInterval(t);
