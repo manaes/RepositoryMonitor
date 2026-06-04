@@ -1,6 +1,7 @@
 pub mod actions;
 pub mod app_state;
 pub mod batch;
+pub mod commands;
 pub mod config;
 pub mod discovery;
 pub mod emit_gate;
