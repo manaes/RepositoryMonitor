@@ -6,7 +6,8 @@
   import Grid from "./components/Grid.svelte";
   import Settings from "./components/Settings.svelte";
   import EmptyState from "./components/EmptyState.svelte";
-  import type { Config, RepoStatus } from "./lib/types";
+  import { openAction } from "./lib/tauri";
+  import type { ActionKind, Config, RepoStatus } from "./lib/types";
 
   let search = $state("");
   let problemsOnly = $state(false);
@@ -34,6 +35,28 @@
   function openContext(repo: RepoStatus, e: MouseEvent) {
     e.preventDefault();
     ctxMenu = { repo, x: e.clientX, y: e.clientY };
+  }
+
+  async function ctxAction(kind: ActionKind) {
+    if (!ctxMenu) return;
+    const path = ctxMenu.repo.path;
+    ctxMenu = null;
+    try {
+      await openAction(path, kind);
+    } catch (e) {
+      console.error("openAction", e);
+    }
+  }
+
+  async function ctxCopyPath() {
+    if (!ctxMenu) return;
+    const path = ctxMenu.repo.path;
+    ctxMenu = null;
+    try {
+      await navigator.clipboard.writeText(path);
+    } catch (e) {
+      console.error("copy", e);
+    }
   }
 
   async function excludeCurrent() {
@@ -74,7 +97,12 @@
       }}
     ></div>
     <div class="ctx-menu" style="left: {ctxMenu.x}px; top: {ctxMenu.y}px">
-      <button onclick={excludeCurrent}>이 프로젝트 제외하기</button>
+      <button onclick={() => ctxAction("open_finder")}>Finder에서 열기</button>
+      <button onclick={() => ctxAction("open_terminal")}>터미널에서 열기</button>
+      <button onclick={() => ctxAction("open_source_tree")}>SourceTree에서 열기</button>
+      <button onclick={ctxCopyPath}>경로 복사</button>
+      <hr />
+      <button class="danger" onclick={excludeCurrent}>이 프로젝트 제외하기</button>
     </div>
   {/if}
 </main>
@@ -112,5 +140,13 @@
   }
   .ctx-menu button:hover {
     background: var(--badge-bg);
+  }
+  .ctx-menu button.danger {
+    color: var(--danger);
+  }
+  .ctx-menu hr {
+    border: none;
+    border-top: 1px solid var(--border-light);
+    margin: 4px 0;
   }
 </style>
