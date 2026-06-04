@@ -1,3 +1,4 @@
+pub mod app_state;
 pub mod config;
 pub mod discovery;
 pub mod git_reader;
