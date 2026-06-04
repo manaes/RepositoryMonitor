@@ -119,9 +119,11 @@ mod tests {
     fn save_then_load_roundtrip() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("config.json");
-        let mut c = Config::default();
-        c.roots = vec!["/x".into()];
-        c.poll_interval_secs = 45;
+        let c = Config {
+            roots: vec!["/x".into()],
+            poll_interval_secs: 45,
+            ..Default::default()
+        };
         save_to(&path, &c).unwrap();
         let loaded = load_from(&path);
         assert_eq!(loaded, c);

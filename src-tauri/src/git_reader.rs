@@ -335,4 +335,18 @@ u UU N... 100644 100644 100644 100644 df967b c278a3 c77470 f
         assert_eq!(p.modified, 0);
         assert!(!p.is_clean);
     }
+
+    #[test]
+    fn rename_2_line_counts_staged_only() {
+        // git mv로 rename하면 staged rename(R.)으로 나옴: 2번째 토큰이 XY
+        let txt = "\
+# branch.oid 895821ddd416d350bc94fd0687f354581c6a50f8
+# branch.head main
+2 R. N... 100644 100644 100644 df967b df967b R100 new.txt\told.txt
+";
+        let p = parse_porcelain_v2(txt);
+        assert_eq!(p.staged, 1);   // R(=X) != '.'
+        assert_eq!(p.modified, 0); // Y == '.'
+        assert!(!p.is_clean);
+    }
 }

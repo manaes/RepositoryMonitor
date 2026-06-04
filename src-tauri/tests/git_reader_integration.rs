@@ -112,3 +112,48 @@ fn missing_repo_sets_error() {
     let st = read_status(&r, 0);
     assert!(st.error.is_some());
 }
+
+#[test]
+fn reads_empty_repo() {
+    let dir = tempfile::tempdir().unwrap();
+    let repo = dir.path();
+    git(repo, &["init", "-q"]);
+    // 커밋 0개 빈 repo
+    let st = read_status(&ref_for(repo), 0);
+    assert_eq!(st.error, None);
+    assert!(st.is_clean);
+    assert!(st.branch.is_some());        // 기본 브랜치명(main/master는 환경 의존이라 값은 단언 안 함)
+    assert_eq!(st.detached_sha, None);   // (initial)은 sha로 취급하지 않음
+}
+
+#[test]
+fn reads_detached_head() {
+    let dir = tempfile::tempdir().unwrap();
+    let repo = dir.path();
+    git(repo, &["init", "-q"]);
+    std::fs::write(repo.join("a"), "a").unwrap();
+    git(repo, &["add", "a"]);
+    git(repo, &["commit", "-qm", "init"]);
+    git(repo, &["checkout", "-q", "--detach", "HEAD"]);
+
+    let st = read_status(&ref_for(repo), 0);
+    assert_eq!(st.branch, None);
+    assert!(st.detached_sha.is_some());
+    assert!(st.is_clean);
+}
+
+#[test]
+fn reads_staged_rename() {
+    let dir = tempfile::tempdir().unwrap();
+    let repo = dir.path();
+    git(repo, &["init", "-q"]);
+    std::fs::write(repo.join("old.txt"), "content\n").unwrap();
+    git(repo, &["add", "old.txt"]);
+    git(repo, &["commit", "-qm", "init"]);
+    git(repo, &["mv", "old.txt", "new.txt"]); // staged rename
+
+    let st = read_status(&ref_for(repo), 0);
+    assert_eq!(st.staged, 1);
+    assert_eq!(st.modified, 0);
+    assert!(!st.is_clean);
+}
