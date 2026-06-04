@@ -59,7 +59,7 @@ pub fn run() {
                 let _ = commands::do_refresh(&handle, &st).await;
 
                 loop {
-                    let interval = st.config.lock().await.poll_interval_secs.clamp(5, 300) as u64;
+                    let interval = st.config.lock().await.poll_interval_secs.clamp(10, 300) as u64;
                     tokio::time::sleep(Duration::from_secs(interval)).await;
                     if scheduler::should_run_poll(
                         st.polling_active.load(Ordering::SeqCst),
