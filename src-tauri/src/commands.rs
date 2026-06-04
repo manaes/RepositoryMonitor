@@ -40,6 +40,9 @@ pub async fn get_config(state: State<'_, Arc<AppState>>) -> Result<Config, Strin
     Ok(state.config.lock().await.clone())
 }
 
+/// config를 저장·반영한다. 변경에 따른 재적용(roots/glob/depth → discovery 재실행)은
+/// 프론트 store.saveConfig가 set_config 직후 scan_repos+refresh_status(rescan)로 트리거한다.
+/// poll_interval_secs 변경은 폴링 루프(lib.rs)가 매 tick config를 다시 읽으므로 다음 tick부터 반영.
 #[tauri::command]
 pub async fn set_config(state: State<'_, Arc<AppState>>, config: Config) -> Result<(), String> {
     let path = config::config_path();

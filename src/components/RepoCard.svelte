@@ -41,6 +41,8 @@
       <span class="branch">{repo.branch}</span>
     {:else if repo.detached_sha}
       <span class="branch detached">detached @{repo.detached_sha.slice(0, 7)}</span>
+    {:else}
+      <span class="branch detached">detached</span>
     {/if}
   </div>
 
