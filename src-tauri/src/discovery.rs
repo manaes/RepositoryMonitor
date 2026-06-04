@@ -34,6 +34,31 @@ pub fn build_exclude_set(globs: &[String]) -> GlobSet {
     builder.build().unwrap_or_else(|_| GlobSet::empty())
 }
 
+use std::path::Path;
+
+/// .git이 **디렉토리**인 경로만 정규 repo로 인정(연결 worktree의 .git 파일/gitlink 제외).
+pub fn is_git_repo_dir(path: &Path) -> bool {
+    path.join(".git").is_dir()
+}
+
+/// 카테고리 = repo의 (소속 루트 기준) 상대경로 첫 세그먼트.
+/// 세그먼트가 1개(루트 직속)면 루트 폴더명을 사용.
+pub fn category_for(repo_path: &Path, root: &Path) -> String {
+    let rel = repo_path.strip_prefix(root).unwrap_or(repo_path);
+    let mut comps = rel.components();
+    match comps.next() {
+        // 세그먼트가 2개 이상이면 첫 세그먼트가 카테고리
+        Some(first) if comps.next().is_some() => {
+            first.as_os_str().to_string_lossy().into_owned()
+        }
+        // 세그먼트 0~1개(루트 직속) → 루트 폴더명
+        _ => root
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_else(|| "(root)".to_string()),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -63,5 +88,35 @@ mod tests {
     fn empty_globs_match_nothing() {
         let set = build_exclude_set(&[]);
         assert!(!set.is_match("/anything/at/all"));
+    }
+
+    use std::path::Path;
+
+    #[test]
+    fn category_is_first_segment_under_root() {
+        let root = Path::new("/Users/me/@Projects");
+        assert_eq!(category_for(Path::new("/Users/me/@Projects/2_App/GitMonitor"), root), "2_App");
+        assert_eq!(category_for(Path::new("/Users/me/@Projects/@ITXRtsp/edge-client-swift"), root), "@ITXRtsp");
+    }
+
+    #[test]
+    fn category_root_direct_uses_root_name() {
+        let root = Path::new("/Users/me/@Projects");
+        // repo가 루트 바로 아래면 상대경로 세그먼트가 1개 → 카테고리는 루트 폴더명
+        assert_eq!(category_for(Path::new("/Users/me/@Projects/loneRepo"), root), "@Projects");
+    }
+
+    #[test]
+    fn is_git_repo_dir_requires_git_directory() {
+        let dir = tempfile::tempdir().unwrap();
+        let repo = dir.path().join("r");
+        std::fs::create_dir_all(repo.join(".git")).unwrap();
+        assert!(is_git_repo_dir(&repo));
+
+        // .git이 파일(연결 worktree/gitlink)이면 repo 아님
+        let wt = dir.path().join("wt");
+        std::fs::create_dir_all(&wt).unwrap();
+        std::fs::write(wt.join(".git"), b"gitdir: /somewhere").unwrap();
+        assert!(!is_git_repo_dir(&wt));
     }
 }
