@@ -6,10 +6,16 @@ use std::time::Duration;
 
 fn git(repo: &Path, args: &[&str]) {
     let ok = Command::new("git")
-        .arg("-C").arg(repo).args(args)
-        .env("GIT_AUTHOR_NAME", "t").env("GIT_AUTHOR_EMAIL", "t@t")
-        .env("GIT_COMMITTER_NAME", "t").env("GIT_COMMITTER_EMAIL", "t@t")
-        .status().unwrap().success();
+        .arg("-C")
+        .arg(repo)
+        .args(args)
+        .env("GIT_AUTHOR_NAME", "t")
+        .env("GIT_AUTHOR_EMAIL", "t@t")
+        .env("GIT_COMMITTER_NAME", "t")
+        .env("GIT_COMMITTER_EMAIL", "t@t")
+        .status()
+        .unwrap()
+        .success();
     assert!(ok, "git {:?} 실패", args);
 }
 
@@ -18,7 +24,12 @@ fn init_repo(dir: &Path) -> RepoRef {
     std::fs::write(dir.join("a"), "a").unwrap();
     git(dir, &["add", "a"]);
     git(dir, &["commit", "-qm", "init"]);
-    RepoRef { path: dir.to_string_lossy().into_owned(), name: "r".into(), category: "c".into(), vcs: VcsKind::Git }
+    RepoRef {
+        path: dir.to_string_lossy().into_owned(),
+        name: "r".into(),
+        category: "c".into(),
+        vcs: VcsKind::Git,
+    }
 }
 
 #[tokio::test]
@@ -27,7 +38,12 @@ async fn runs_all_repos_and_marks_missing_as_error() {
     let d2 = tempfile::tempdir().unwrap();
     let r1 = init_repo(d1.path());
     let r2 = init_repo(d2.path());
-    let missing = RepoRef { path: "/no/such/repo/zzz".into(), name: "x".into(), category: "c".into(), vcs: VcsKind::Git };
+    let missing = RepoRef {
+        path: "/no/such/repo/zzz".into(),
+        name: "x".into(),
+        category: "c".into(),
+        vcs: VcsKind::Git,
+    };
 
     let out = run_batch(vec![r1, r2, missing], 1000, 8, Duration::from_secs(5)).await;
     assert_eq!(out.len(), 3);

@@ -34,7 +34,14 @@ export interface RepoStatus {
   vcs: VcsKind;
 }
 
-export type TerminalApp = "terminal" | "iterm" | { custom: string };
+export type TerminalApp =
+  | "terminal"
+  | "iterm"
+  | "ghostty"
+  | "windows_terminal"
+  | "powershell"
+  | "cmd"
+  | { custom: string };
 
 export interface Config {
   version: number;

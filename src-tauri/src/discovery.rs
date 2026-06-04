@@ -53,9 +53,7 @@ pub fn category_for(repo_path: &Path, root: &Path) -> String {
     let mut comps = rel.components();
     match comps.next() {
         // 세그먼트가 2개 이상이면 첫 세그먼트가 카테고리
-        Some(first) if comps.next().is_some() => {
-            first.as_os_str().to_string_lossy().into_owned()
-        }
+        Some(first) if comps.next().is_some() => first.as_os_str().to_string_lossy().into_owned(),
         // 세그먼트 0~1개(루트 직속) → 루트 폴더명
         _ => root
             .file_name()
@@ -205,15 +203,30 @@ mod tests {
     #[test]
     fn category_is_first_segment_under_root() {
         let root = Path::new("/Users/me/@Projects");
-        assert_eq!(category_for(Path::new("/Users/me/@Projects/2_App/RepositoryMonitor"), root), "2_App");
-        assert_eq!(category_for(Path::new("/Users/me/@Projects/@ITXRtsp/edge-client-swift"), root), "@ITXRtsp");
+        assert_eq!(
+            category_for(
+                Path::new("/Users/me/@Projects/2_App/RepositoryMonitor"),
+                root
+            ),
+            "2_App"
+        );
+        assert_eq!(
+            category_for(
+                Path::new("/Users/me/@Projects/@ITXRtsp/edge-client-swift"),
+                root
+            ),
+            "@ITXRtsp"
+        );
     }
 
     #[test]
     fn category_root_direct_uses_root_name() {
         let root = Path::new("/Users/me/@Projects");
         // repo가 루트 바로 아래면 상대경로 세그먼트가 1개 → 카테고리는 루트 폴더명
-        assert_eq!(category_for(Path::new("/Users/me/@Projects/loneRepo"), root), "@Projects");
+        assert_eq!(
+            category_for(Path::new("/Users/me/@Projects/loneRepo"), root),
+            "@Projects"
+        );
     }
 
     #[test]

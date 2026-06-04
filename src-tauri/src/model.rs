@@ -106,12 +106,26 @@ mod tests {
     #[test]
     fn repostatus_serializes_snake_case_fields() {
         let s = RepoStatus {
-            path: "/r".into(), name: "r".into(), category: "2_App".into(),
-            branch: Some("main".into()), detached_sha: None, upstream: Some("origin/main".into()),
-            has_upstream: true, ahead: Some(1), behind: Some(0),
-            staged: 2, modified: 1, untracked: 1, conflicts: 0, stash: 0,
-            is_clean: false, state: RepoState::Clean, worktrees: 1,
-            last_fetch: Some(1_700_000_000), last_checked: 1_700_000_100, error: None,
+            path: "/r".into(),
+            name: "r".into(),
+            category: "2_App".into(),
+            branch: Some("main".into()),
+            detached_sha: None,
+            upstream: Some("origin/main".into()),
+            has_upstream: true,
+            ahead: Some(1),
+            behind: Some(0),
+            staged: 2,
+            modified: 1,
+            untracked: 1,
+            conflicts: 0,
+            stash: 0,
+            is_clean: false,
+            state: RepoState::Clean,
+            worktrees: 1,
+            last_fetch: Some(1_700_000_000),
+            last_checked: 1_700_000_100,
+            error: None,
             vcs: VcsKind::Git,
         };
         let j = serde_json::to_value(&s).unwrap();
@@ -122,22 +136,36 @@ mod tests {
 
     #[test]
     fn reporef_roundtrips() {
-        let r = RepoRef { path: "/r".into(), name: "r".into(), category: "lib".into(), vcs: VcsKind::Git };
+        let r = RepoRef {
+            path: "/r".into(),
+            name: "r".into(),
+            category: "lib".into(),
+            vcs: VcsKind::Git,
+        };
         let back: RepoRef = serde_json::from_str(&serde_json::to_string(&r).unwrap()).unwrap();
         assert_eq!(r, back);
     }
 
     #[test]
     fn action_kind_serializes_snake_case() {
-        assert_eq!(serde_json::to_string(&ActionKind::OpenFinder).unwrap(), "\"open_finder\"");
-        assert_eq!(serde_json::to_string(&ActionKind::OpenSourceTree).unwrap(), "\"open_source_tree\"");
+        assert_eq!(
+            serde_json::to_string(&ActionKind::OpenFinder).unwrap(),
+            "\"open_finder\""
+        );
+        assert_eq!(
+            serde_json::to_string(&ActionKind::OpenSourceTree).unwrap(),
+            "\"open_source_tree\""
+        );
         let back: ActionKind = serde_json::from_str("\"open_terminal\"").unwrap();
         assert_eq!(back, ActionKind::OpenTerminal);
     }
 
     #[test]
     fn repo_snapshot_serializes() {
-        let snap = RepoSnapshot { seq: 3, repos: vec![] };
+        let snap = RepoSnapshot {
+            seq: 3,
+            repos: vec![],
+        };
         let j = serde_json::to_value(&snap).unwrap();
         assert_eq!(j["seq"], 3);
         assert!(j["repos"].is_array());
@@ -145,7 +173,12 @@ mod tests {
 
     #[test]
     fn from_ref_builds_clean_placeholder() {
-        let r = RepoRef { path: "/r".into(), name: "r".into(), category: "c".into(), vcs: VcsKind::Git };
+        let r = RepoRef {
+            path: "/r".into(),
+            name: "r".into(),
+            category: "c".into(),
+            vcs: VcsKind::Git,
+        };
         let st = RepoStatus::from_ref(&r, 999);
         assert_eq!(st.path, "/r");
         assert_eq!(st.name, "r");

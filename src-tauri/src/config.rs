@@ -6,6 +6,10 @@ pub enum TerminalApp {
     #[default]
     Terminal,
     Iterm,
+    Ghostty,
+    WindowsTerminal,
+    Powershell,
+    Cmd,
     Custom(String),
 }
 
@@ -69,8 +73,7 @@ pub fn save_to(path: &Path, cfg: &Config) -> std::io::Result<()> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
     }
-    let text = serde_json::to_string_pretty(cfg)
-        .map_err(std::io::Error::other)?;
+    let text = serde_json::to_string_pretty(cfg).map_err(std::io::Error::other)?;
     std::fs::write(path, text)
 }
 
@@ -96,7 +99,7 @@ mod tests {
         let c: Config = serde_json::from_str(json).unwrap();
         assert_eq!(c.roots, vec!["/a".to_string()]);
         assert_eq!(c.poll_interval_secs, 60);
-        assert_eq!(c.scan_depth, 4);   // 기본값으로 채워짐
+        assert_eq!(c.scan_depth, 4); // 기본값으로 채워짐
         assert_eq!(c.version, 1);
     }
 
@@ -109,7 +112,23 @@ mod tests {
 
     #[test]
     fn terminal_app_serializes_snake_case() {
-        assert_eq!(serde_json::to_string(&TerminalApp::Iterm).unwrap(), "\"iterm\"");
+        assert_eq!(
+            serde_json::to_string(&TerminalApp::Iterm).unwrap(),
+            "\"iterm\""
+        );
+        assert_eq!(
+            serde_json::to_string(&TerminalApp::Ghostty).unwrap(),
+            "\"ghostty\""
+        );
+        assert_eq!(
+            serde_json::to_string(&TerminalApp::WindowsTerminal).unwrap(),
+            "\"windows_terminal\""
+        );
+        assert_eq!(
+            serde_json::to_string(&TerminalApp::Powershell).unwrap(),
+            "\"powershell\""
+        );
+        assert_eq!(serde_json::to_string(&TerminalApp::Cmd).unwrap(), "\"cmd\"");
         let custom = TerminalApp::Custom("/Applications/Foo.app".into());
         let j = serde_json::to_value(&custom).unwrap();
         assert_eq!(j["custom"], "/Applications/Foo.app");

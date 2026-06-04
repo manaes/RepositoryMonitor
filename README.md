@@ -1,8 +1,8 @@
 # RepositoryMonitor
 
-> 여러 **git · svn** 저장소의 상태(미커밋·스테이징·브랜치·푸시 여부·워킹트리)를 한 창에서 한눈에 보는 macOS 네이티브 대시보드. SourceTree의 "상태 보기"만 떼어낸 경량판.
+> 여러 **git · svn** 저장소의 상태(미커밋·스테이징·브랜치·푸시 여부·워킹트리)를 한 창에서 한눈에 보는 macOS/Windows 데스크톱 대시보드. SourceTree의 "상태 보기"만 떼어낸 경량판.
 
-[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)](#설치--빌드)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)](#설치--빌드)
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB)](https://tauri.app)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -33,10 +33,10 @@
 - git의 `behind`는 *마지막 fetch 시점* 기준이라 카드에 `fetched Nd ago`를 함께 표기(오래되면 흐리게). svn은 out-of-date 확인이 네트워크를 타므로 생략
 
 ### 🎨 사용성
-- **다크/라이트** — macOS 시스템 외관 자동 추종 + 헤더 토글(system → light → dark)
+- **다크/라이트** — 시스템 외관 자동 추종 + 헤더 토글(system → light → dark)
 - **비클린 강조** — 변경이 있는 카드는 붉은 배경 + 좌측 스트라이프, 깨끗한 카드는 흐리게
-- **우클릭 메뉴** — Finder / 터미널 / SourceTree 에서 열기 · 경로 복사 · 이 프로젝트 제외
-- **포커스 게이팅 폴링** — 창이 활성일 때만 주기(기본 30초) 갱신 + 수동 새로고침(⌘R)
+- **우클릭 메뉴** — Finder/Explorer · 터미널 · SourceTree 에서 열기 · 경로 복사 · 이 프로젝트 제외
+- **포커스 게이팅 폴링** — 창이 활성일 때만 주기(기본 30초) 갱신 + 수동 새로고침
 
 ---
 
@@ -47,7 +47,7 @@
 ```bash
 pnpm install        # 의존성 설치 (pnpm-workspace.yaml의 allowBuilds로 esbuild 빌드 허용)
 pnpm tauri dev      # 개발 실행 (hot reload)
-pnpm tauri build    # 릴리즈 .app/.dmg 빌드
+pnpm tauri build    # 릴리즈 앱 번들 빌드(.app/.dmg 또는 .msi/.exe)
 ```
 
 자세한 개발·테스트·빌드 절차: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
@@ -73,7 +73,7 @@ pnpm tauri build    # 릴리즈 .app/.dmg 빌드
    | `SVN` | SVN 저장소 |
    | `fetched Nd ago` | 마지막 fetch 시각 (git, behind 신선도) |
 
-4. **우클릭** → Finder/터미널/SourceTree 열기 · 경로 복사 · 이 프로젝트 제외하기. 호버 버튼(`F`/`T`/`S`/`⧉`)으로도 가능.
+4. **우클릭** → Finder/Explorer, 터미널, SourceTree 열기 · 경로 복사 · 이 프로젝트 제외하기. 호버 버튼(`F`/`T`/`S`/`⧉`)으로도 가능.
 5. `⚙ 설정`에서 루트/제외 글롭/폴링 주기/스캔 깊이/stale 기준/터미널 앱 조정.
 
 ---

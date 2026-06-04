@@ -25,8 +25,10 @@ fn discovers_repos_with_category_and_prunes() {
         exclude_globs: &[],
         scan_depth: 4,
     };
-    let mut found: Vec<(String, String)> =
-        discover(&cfg).into_iter().map(|r| (r.name, r.category)).collect();
+    let mut found: Vec<(String, String)> = discover(&cfg)
+        .into_iter()
+        .map(|r| (r.name, r.category))
+        .collect();
     found.sort();
 
     assert!(found.contains(&("RepositoryMonitor".to_string(), "2_App".to_string())));

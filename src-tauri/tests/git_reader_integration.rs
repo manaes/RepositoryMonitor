@@ -80,7 +80,11 @@ fn detects_merge_conflict_state() {
     std::fs::write(repo.join("f"), "mainc\n").unwrap();
     git(repo, &["commit", "-qam", "mainc"]);
     // 충돌 머지 (실패해도 무시)
-    let _ = Command::new("git").arg("-C").arg(repo).args(["merge", "feat"]).output();
+    let _ = Command::new("git")
+        .arg("-C")
+        .arg(repo)
+        .args(["merge", "feat"])
+        .output();
 
     let st = read_status(&ref_for(repo), 0);
     assert_eq!(st.conflicts, 1);
@@ -124,8 +128,8 @@ fn reads_empty_repo() {
     let st = read_status(&ref_for(repo), 0);
     assert_eq!(st.error, None);
     assert!(st.is_clean);
-    assert!(st.branch.is_some());        // 기본 브랜치명(main/master는 환경 의존이라 값은 단언 안 함)
-    assert_eq!(st.detached_sha, None);   // (initial)은 sha로 취급하지 않음
+    assert!(st.branch.is_some()); // 기본 브랜치명(main/master는 환경 의존이라 값은 단언 안 함)
+    assert_eq!(st.detached_sha, None); // (initial)은 sha로 취급하지 않음
 }
 
 #[test]

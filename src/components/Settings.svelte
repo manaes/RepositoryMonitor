@@ -1,7 +1,8 @@
 <script lang="ts">
   import { untrack } from "svelte";
-  import type { Config } from "../lib/types";
+  import type { Config, TerminalApp } from "../lib/types";
   import { open } from "@tauri-apps/plugin-dialog";
+  import { desktopPlatform } from "../lib/platform";
 
   let { config, onSave, onClose }: {
     config: Config;
@@ -11,6 +12,19 @@
 
   // config의 일회성 편집 복사본(의도적으로 비반응 — untrack으로 초기값 캡처 경고 억제)
   let draft = $state<Config>(untrack(() => structuredClone($state.snapshot(config))));
+  const platform = desktopPlatform();
+  const terminalOptions: { value: Extract<TerminalApp, string>; label: string }[] =
+    platform === "windows"
+      ? [
+          { value: "windows_terminal", label: "Windows Terminal" },
+          { value: "powershell", label: "PowerShell" },
+          { value: "cmd", label: "Command Prompt" },
+        ]
+      : [
+          { value: "terminal", label: "Terminal" },
+          { value: "iterm", label: "iTerm" },
+          { value: "ghostty", label: "Ghostty" },
+        ];
 
   async function addRoot() {
     const dir = await open({ directory: true, multiple: false });
@@ -54,11 +68,12 @@
     <label>stale 기준(일)<input type="number" min="1" bind:value={draft.stale_fetch_days} /></label>
     <label>터미널 앱
       <select
-        value={typeof draft.terminal_app === "string" ? draft.terminal_app : "terminal"}
-        onchange={(e) => (draft.terminal_app = e.currentTarget.value as "terminal" | "iterm")}
+        value={typeof draft.terminal_app === "string" ? draft.terminal_app : terminalOptions[0].value}
+        onchange={(e) => (draft.terminal_app = e.currentTarget.value as Extract<TerminalApp, string>)}
       >
-        <option value="terminal">Terminal</option>
-        <option value="iterm">iTerm</option>
+        {#each terminalOptions as option}
+          <option value={option.value}>{option.label}</option>
+        {/each}
       </select>
     </label>
   </section>

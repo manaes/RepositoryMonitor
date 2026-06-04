@@ -9,9 +9,9 @@ mod tests {
 
     #[test]
     fn polls_only_when_active_and_idle() {
-        assert!(should_run_poll(true, false));   // 포커스 O, in-flight X → 폴링
-        assert!(!should_run_poll(false, false));  // 비포커스 → 스킵
-        assert!(!should_run_poll(true, true));    // 이미 진행 중 → 스킵
+        assert!(should_run_poll(true, false)); // 포커스 O, in-flight X → 폴링
+        assert!(!should_run_poll(false, false)); // 비포커스 → 스킵
+        assert!(!should_run_poll(true, true)); // 이미 진행 중 → 스킵
         assert!(!should_run_poll(false, true));
     }
 }

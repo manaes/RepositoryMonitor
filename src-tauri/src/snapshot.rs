@@ -25,7 +25,12 @@ mod tests {
     use crate::model::{RepoRef, RepoStatus, VcsKind};
 
     fn rref(path: &str) -> RepoRef {
-        RepoRef { path: path.into(), name: "n".into(), category: "c".into(), vcs: VcsKind::Git }
+        RepoRef {
+            path: path.into(),
+            name: "n".into(),
+            category: "c".into(),
+            vcs: VcsKind::Git,
+        }
     }
 
     #[test]
@@ -43,10 +48,10 @@ mod tests {
 
         let merged = merge_failed_with_previous(&prev, fresh);
         assert_eq!(merged.len(), 1);
-        assert_eq!(merged[0].staged, 3);                   // 직전 값 유지
+        assert_eq!(merged[0].staged, 3); // 직전 값 유지
         assert_eq!(merged[0].branch.as_deref(), Some("main"));
         assert_eq!(merged[0].error.as_deref(), Some("git 실패")); // error는 신선 값
-        assert_eq!(merged[0].last_checked, 200);           // last_checked는 신선 값
+        assert_eq!(merged[0].last_checked, 200); // last_checked는 신선 값
     }
 
     #[test]

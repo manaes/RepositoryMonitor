@@ -66,7 +66,11 @@ fn reads_svn_working_copy_dirty_on_trunk() {
     let wc = base.join("wc");
     svn(
         base,
-        &["checkout", &format!("{repo_url}/trunk"), wc.to_str().unwrap()],
+        &[
+            "checkout",
+            &format!("{repo_url}/trunk"),
+            wc.to_str().unwrap(),
+        ],
     );
 
     // 4) 커밋된 파일 1개(이후 modify 대상) + untracked + add
@@ -104,12 +108,19 @@ fn reads_clean_svn_working_copy() {
     let repo_dir = base.join("repo");
     svnadmin(&["create", repo_dir.to_str().unwrap()]);
     let repo_url = format!("file://{}", repo_dir.to_string_lossy());
-    svn(base, &["mkdir", "-m", "layout", &format!("{repo_url}/trunk")]);
+    svn(
+        base,
+        &["mkdir", "-m", "layout", &format!("{repo_url}/trunk")],
+    );
 
     let wc = base.join("wc");
     svn(
         base,
-        &["checkout", &format!("{repo_url}/trunk"), wc.to_str().unwrap()],
+        &[
+            "checkout",
+            &format!("{repo_url}/trunk"),
+            wc.to_str().unwrap(),
+        ],
     );
     std::fs::write(wc.join("a.txt"), "a").unwrap();
     svn(&wc, &["add", "a.txt"]);

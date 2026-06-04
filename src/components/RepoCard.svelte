@@ -2,6 +2,7 @@
   import type { RepoStatus, ActionKind } from "../lib/types";
   import { openAction } from "../lib/tauri";
   import { formatFetched, isStale, isClean } from "../lib/logic";
+  import { fileManagerName } from "../lib/platform";
 
   let { repo, now, staleDays, onContext }: {
     repo: RepoStatus;
@@ -12,6 +13,7 @@
 
   const clean = $derived(isClean(repo));
   const stale = $derived(isStale(repo.last_fetch, now, staleDays));
+  const fileManager = fileManagerName();
 
   async function act(kind: ActionKind) {
     try {
@@ -80,7 +82,7 @@
   {/if}
 
   <div class="actions">
-    <button title="Finder" onclick={() => act("open_finder")}>F</button>
+    <button title={fileManager} onclick={() => act("open_finder")}>F</button>
     <button title="Terminal" onclick={() => act("open_terminal")}>T</button>
     <button title="SourceTree" onclick={() => act("open_source_tree")}>S</button>
     <button title="경로 복사" onclick={copyPath}>⧉</button>

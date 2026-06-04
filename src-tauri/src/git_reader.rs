@@ -238,7 +238,10 @@ mod tests {
         assert!(p.has_upstream);
         assert_eq!(p.ahead, Some(0));
         assert_eq!(p.behind, Some(0));
-        assert_eq!((p.staged, p.modified, p.untracked, p.conflicts), (0, 0, 0, 0));
+        assert_eq!(
+            (p.staged, p.modified, p.untracked, p.conflicts),
+            (0, 0, 0, 0)
+        );
         assert!(p.is_clean);
     }
 
@@ -272,7 +275,7 @@ mod tests {
         assert_eq!(p.branch.as_deref(), Some("master"));
         assert!(!p.has_upstream);
         assert_eq!(p.upstream, None);
-        assert_eq!(p.ahead, None);   // ab 라인 없음 → None(미표시)
+        assert_eq!(p.ahead, None); // ab 라인 없음 → None(미표시)
         assert_eq!(p.behind, None);
         assert!(p.is_clean);
     }
@@ -285,7 +288,10 @@ mod tests {
 ";
         let p = parse_porcelain_v2(txt);
         assert_eq!(p.branch, None);
-        assert_eq!(p.detached_sha.as_deref(), Some("8d42fe5d803a1ee92a51f252eea10c73629a85d3"));
+        assert_eq!(
+            p.detached_sha.as_deref(),
+            Some("8d42fe5d803a1ee92a51f252eea10c73629a85d3")
+        );
         assert!(p.is_clean);
     }
 
@@ -297,7 +303,7 @@ mod tests {
 ";
         let p = parse_porcelain_v2(txt);
         assert_eq!(p.branch.as_deref(), Some("main"));
-        assert_eq!(p.detached_sha, None);  // (initial)은 sha 아님
+        assert_eq!(p.detached_sha, None); // (initial)은 sha 아님
         assert!(p.is_clean);
     }
 
@@ -310,7 +316,7 @@ u UU N... 100644 100644 100644 100644 df967b c278a3 c77470 f
 ";
         let p = parse_porcelain_v2(txt);
         assert_eq!(p.conflicts, 1);
-        assert_eq!(p.staged, 0);   // 충돌은 u 라인 전용, 1/2와 겹치지 않음
+        assert_eq!(p.staged, 0); // 충돌은 u 라인 전용, 1/2와 겹치지 않음
         assert_eq!(p.modified, 0);
         assert!(!p.is_clean);
     }
@@ -324,7 +330,7 @@ u UU N... 100644 100644 100644 100644 df967b c278a3 c77470 f
 2 R. N... 100644 100644 100644 df967b df967b R100 new.txt\told.txt
 ";
         let p = parse_porcelain_v2(txt);
-        assert_eq!(p.staged, 1);   // R(=X) != '.'
+        assert_eq!(p.staged, 1); // R(=X) != '.'
         assert_eq!(p.modified, 0); // Y == '.'
         assert!(!p.is_clean);
     }
