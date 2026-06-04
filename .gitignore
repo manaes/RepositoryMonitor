@@ -2,6 +2,10 @@
 /target
 src-tauri/target
 
+# 프론트엔드
+node_modules/
+/dist
+
 # claude-flow / 로컬 에이전트 아티팩트
 .claude-flow/
 *.db

@@ -1,0 +1,18 @@
+:root {
+  font-family: -apple-system, system-ui, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  color: #222;
+  background: #fafafa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+}
