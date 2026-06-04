@@ -1,10 +1,20 @@
 use serde::{Deserialize, Serialize};
 
+/// 추적 대상 VCS 종류. discovery가 판정해 repo별 reader 디스패치에 사용.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum VcsKind {
+    #[default]
+    Git,
+    Svn,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RepoRef {
     pub path: String,
     pub name: String,
     pub category: String,
+    pub vcs: VcsKind,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
@@ -41,6 +51,7 @@ pub struct RepoStatus {
     pub last_fetch: Option<i64>,
     pub last_checked: i64,
     pub error: Option<String>,
+    pub vcs: VcsKind,
 }
 
 /// 외부 앱 열기 액션 종류(프론트→백엔드 IPC). 경로 복사는 프론트 navigator.clipboard 담당이라 제외.
@@ -83,6 +94,7 @@ impl RepoStatus {
             last_fetch: None,
             last_checked: now,
             error: None,
+            vcs: repo.vcs,
         }
     }
 }
@@ -100,6 +112,7 @@ mod tests {
             staged: 2, modified: 1, untracked: 1, conflicts: 0, stash: 0,
             is_clean: false, state: RepoState::Clean, worktrees: 1,
             last_fetch: Some(1_700_000_000), last_checked: 1_700_000_100, error: None,
+            vcs: VcsKind::Git,
         };
         let j = serde_json::to_value(&s).unwrap();
         assert_eq!(j["has_upstream"], true);
@@ -109,7 +122,7 @@ mod tests {
 
     #[test]
     fn reporef_roundtrips() {
-        let r = RepoRef { path: "/r".into(), name: "r".into(), category: "lib".into() };
+        let r = RepoRef { path: "/r".into(), name: "r".into(), category: "lib".into(), vcs: VcsKind::Git };
         let back: RepoRef = serde_json::from_str(&serde_json::to_string(&r).unwrap()).unwrap();
         assert_eq!(r, back);
     }
@@ -132,7 +145,7 @@ mod tests {
 
     #[test]
     fn from_ref_builds_clean_placeholder() {
-        let r = RepoRef { path: "/r".into(), name: "r".into(), category: "c".into() };
+        let r = RepoRef { path: "/r".into(), name: "r".into(), category: "c".into(), vcs: VcsKind::Git };
         let st = RepoStatus::from_ref(&r, 999);
         assert_eq!(st.path, "/r");
         assert_eq!(st.name, "r");

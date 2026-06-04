@@ -9,6 +9,7 @@ pub mod git_reader;
 pub mod model;
 pub mod scheduler;
 pub mod snapshot;
+pub mod svn_reader;
 
 use app_state::AppState;
 use std::sync::atomic::Ordering;

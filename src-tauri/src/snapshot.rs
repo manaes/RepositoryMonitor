@@ -22,10 +22,10 @@ pub fn merge_failed_with_previous(prev: &[RepoStatus], fresh: Vec<RepoStatus>) -
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::{RepoRef, RepoStatus};
+    use crate::model::{RepoRef, RepoStatus, VcsKind};
 
     fn rref(path: &str) -> RepoRef {
-        RepoRef { path: path.into(), name: "n".into(), category: "c".into() }
+        RepoRef { path: path.into(), name: "n".into(), category: "c".into(), vcs: VcsKind::Git }
     }
 
     #[test]

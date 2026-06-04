@@ -24,7 +24,12 @@ mod tests {
 
     fn s(now: i64, staged: u32) -> RepoStatus {
         let mut x = RepoStatus::from_ref(
-            &crate::model::RepoRef { path: "/r".into(), name: "r".into(), category: "c".into() },
+            &crate::model::RepoRef {
+                path: "/r".into(),
+                name: "r".into(),
+                category: "c".into(),
+                vcs: crate::model::VcsKind::Git,
+            },
             now,
         );
         x.staged = staged;

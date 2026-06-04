@@ -1,5 +1,5 @@
 use gitmonitor::git_reader::read_status;
-use gitmonitor::model::{RepoRef, RepoState};
+use gitmonitor::model::{RepoRef, RepoState, VcsKind};
 use std::path::Path;
 use std::process::Command;
 
@@ -23,6 +23,7 @@ fn ref_for(p: &Path) -> RepoRef {
         path: p.to_string_lossy().into_owned(),
         name: "r".into(),
         category: "test".into(),
+        vcs: VcsKind::Git,
     }
 }
 
@@ -108,6 +109,7 @@ fn missing_repo_sets_error() {
         path: "/no/such/repo/xyz".into(),
         name: "x".into(),
         category: "test".into(),
+        vcs: VcsKind::Git,
     };
     let st = read_status(&r, 0);
     assert!(st.error.is_some());

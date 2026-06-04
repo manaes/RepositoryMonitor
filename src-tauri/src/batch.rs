@@ -1,5 +1,4 @@
-use crate::git_reader::read_status;
-use crate::model::{RepoRef, RepoStatus};
+use crate::model::{RepoRef, RepoStatus, VcsKind};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Semaphore;
@@ -21,12 +20,15 @@ pub async fn run_batch(
         handles.push(tokio::spawn(async move {
             let _permit = sem.acquire_owned().await.expect("semaphore closed");
             let repo_for_err = repo.clone();
-            let blocking = tokio::task::spawn_blocking(move || read_status(&repo, now));
+            let blocking = tokio::task::spawn_blocking(move || match repo.vcs {
+                VcsKind::Git => crate::git_reader::read_status(&repo, now),
+                VcsKind::Svn => crate::svn_reader::read_svn_status(&repo, now),
+            });
             match tokio::time::timeout(timeout, blocking).await {
                 Ok(Ok(st)) => st,
                 _ => {
                     let mut st = RepoStatus::from_ref(&repo_for_err, now);
-                    st.error = Some("git 읽기 timeout 또는 실행 실패".to_string());
+                    st.error = Some("상태 읽기 timeout 또는 실행 실패".to_string());
                     st
                 }
             }

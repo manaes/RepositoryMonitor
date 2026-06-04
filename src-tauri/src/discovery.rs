@@ -41,6 +41,11 @@ pub fn is_git_repo_dir(path: &Path) -> bool {
     path.join(".git").is_dir()
 }
 
+/// .svn 디렉토리가 있으면 SVN 작업복사본 루트로 인정.
+pub fn is_svn_repo_dir(path: &Path) -> bool {
+    path.join(".svn").is_dir()
+}
+
 /// 카테고리 = repo의 (소속 루트 기준) 상대경로 첫 세그먼트.
 /// 세그먼트가 1개(루트 직속)면 루트 폴더명을 사용.
 pub fn category_for(repo_path: &Path, root: &Path) -> String {
@@ -59,7 +64,7 @@ pub fn category_for(repo_path: &Path, root: &Path) -> String {
     }
 }
 
-use crate::model::RepoRef;
+use crate::model::{RepoRef, VcsKind};
 use std::collections::BTreeSet;
 use walkdir::WalkDir;
 
@@ -72,7 +77,7 @@ pub struct DiscoveryConfig<'a> {
 }
 
 /// 탐색 중 descent를 막을 무거운 디렉토리 이름.
-const PRUNE_DIRS: &[&str] = &["node_modules", "target", "Pods", ".build", ".git"];
+const PRUNE_DIRS: &[&str] = &["node_modules", "target", "Pods", ".build", ".git", ".svn"];
 
 /// 등록 루트 스캔 + 수동 경로를 합쳐 RepoRef 목록 산출. 제외 글롭 적용, 경로 dedup.
 pub fn discover(cfg: &DiscoveryConfig) -> Vec<RepoRef> {
@@ -100,18 +105,30 @@ pub fn discover(cfg: &DiscoveryConfig) -> Vec<RepoRef> {
                 continue;
             }
             let dir = entry.path();
-            if is_git_repo_dir(dir) {
+            // git 우선 판정, 아니면 svn 작업복사본인지 확인.
+            let vcs = if is_git_repo_dir(dir) {
+                Some(VcsKind::Git)
+            } else if is_svn_repo_dir(dir) {
+                Some(VcsKind::Svn)
+            } else {
+                None
+            };
+            if let Some(vcs) = vcs {
                 let cat = category_for(dir, root_path);
-                push_repo(dir, cat, &excl, &mut seen, &mut out);
+                push_repo(dir, cat, vcs, &excl, &mut seen, &mut out);
             }
         }
     }
 
     for mp in cfg.manual_paths {
         let p = Path::new(mp);
-        if !is_git_repo_dir(p) {
+        let vcs = if is_git_repo_dir(p) {
+            VcsKind::Git
+        } else if is_svn_repo_dir(p) {
+            VcsKind::Svn
+        } else {
             continue;
-        }
+        };
         // 어느 루트 하위면 그 루트 기준 카테고리, 아니면 (manual)
         let cat = cfg
             .roots
@@ -120,7 +137,7 @@ pub fn discover(cfg: &DiscoveryConfig) -> Vec<RepoRef> {
             .find(|r| p.starts_with(r))
             .map(|r| category_for(p, r))
             .unwrap_or_else(|| "(manual)".to_string());
-        push_repo(p, cat, &excl, &mut seen, &mut out);
+        push_repo(p, cat, vcs, &excl, &mut seen, &mut out);
     }
 
     out
@@ -130,6 +147,7 @@ pub fn discover(cfg: &DiscoveryConfig) -> Vec<RepoRef> {
 fn push_repo(
     dir: &Path,
     category: String,
+    vcs: VcsKind,
     excl: &globset::GlobSet,
     seen: &mut BTreeSet<String>,
     out: &mut Vec<RepoRef>,
@@ -147,6 +165,7 @@ fn push_repo(
         path: key,
         name,
         category,
+        vcs,
     });
 }
 
@@ -209,5 +228,40 @@ mod tests {
         std::fs::create_dir_all(&wt).unwrap();
         std::fs::write(wt.join(".git"), b"gitdir: /somewhere").unwrap();
         assert!(!is_git_repo_dir(&wt));
+    }
+
+    #[test]
+    fn is_svn_repo_dir_requires_svn_directory() {
+        let dir = tempfile::tempdir().unwrap();
+        let repo = dir.path().join("wc");
+        std::fs::create_dir_all(repo.join(".svn")).unwrap();
+        assert!(is_svn_repo_dir(&repo));
+
+        // .svn 없는 평범한 디렉토리는 svn repo 아님
+        let plain = dir.path().join("plain");
+        std::fs::create_dir_all(&plain).unwrap();
+        assert!(!is_svn_repo_dir(&plain));
+    }
+
+    #[test]
+    fn discover_detects_svn_working_copy() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        // .svn 작업복사본 + .git repo 를 각각 만들어 vcs 판정 확인
+        std::fs::create_dir_all(root.join("svnproj/svnRepo/.svn")).unwrap();
+        std::fs::create_dir_all(root.join("gitproj/gitRepo/.git")).unwrap();
+
+        let roots = vec![root.to_string_lossy().into_owned()];
+        let cfg = DiscoveryConfig {
+            roots: &roots,
+            manual_paths: &[],
+            exclude_globs: &[],
+            scan_depth: 4,
+        };
+        let found = discover(&cfg);
+        let svn = found.iter().find(|r| r.name == "svnRepo").unwrap();
+        assert_eq!(svn.vcs, VcsKind::Svn);
+        let git = found.iter().find(|r| r.name == "gitRepo").unwrap();
+        assert_eq!(git.vcs, VcsKind::Git);
     }
 }

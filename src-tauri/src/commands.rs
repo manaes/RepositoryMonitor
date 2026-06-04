@@ -131,7 +131,7 @@ pub async fn open_action(
 mod tests {
     use super::*;
     use crate::config::Config;
-    use crate::model::{RepoRef, RepoStatus};
+    use crate::model::{RepoRef, RepoStatus, VcsKind};
     use std::cell::Cell;
 
     fn state_with_repos(repos: Vec<RepoRef>) -> Arc<AppState> {
@@ -146,6 +146,7 @@ mod tests {
             path: path.into(),
             name: "n".into(),
             category: "c".into(),
+            vcs: VcsKind::Git,
         }
     }
 
