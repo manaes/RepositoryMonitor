@@ -1,4 +1,4 @@
-use gitmonitor::discovery::{discover, DiscoveryConfig};
+use repositorymonitor::discovery::{discover, DiscoveryConfig};
 use std::fs;
 use std::path::Path;
 
@@ -11,10 +11,10 @@ fn mk_repo(base: &Path, rel: &str) {
 fn discovers_repos_with_category_and_prunes() {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path();
-    mk_repo(root, "2_App/GitMonitor");
+    mk_repo(root, "2_App/RepositoryMonitor");
     mk_repo(root, "@ITXRtsp/edge-client-swift");
     // node_modules 안의 .git은 prune되어 잡히면 안 됨
-    fs::create_dir_all(root.join("2_App/GitMonitor/node_modules/dep/.git")).unwrap();
+    fs::create_dir_all(root.join("2_App/RepositoryMonitor/node_modules/dep/.git")).unwrap();
     // 깊이 초과 repo (depth=4 기준 5단계) — 잡히면 안 됨
     mk_repo(root, "a/b/c/d/tooDeep");
 
@@ -29,7 +29,7 @@ fn discovers_repos_with_category_and_prunes() {
         discover(&cfg).into_iter().map(|r| (r.name, r.category)).collect();
     found.sort();
 
-    assert!(found.contains(&("GitMonitor".to_string(), "2_App".to_string())));
+    assert!(found.contains(&("RepositoryMonitor".to_string(), "2_App".to_string())));
     assert!(found.contains(&("edge-client-swift".to_string(), "@ITXRtsp".to_string())));
     // node_modules 안 repo는 제외
     assert!(!found.iter().any(|(n, _)| n == "dep"));

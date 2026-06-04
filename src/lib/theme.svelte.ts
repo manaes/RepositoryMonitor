@@ -1,6 +1,6 @@
 export type Theme = "system" | "light" | "dark";
 
-const KEY = "gitmonitor-theme";
+const KEY = "repositorymonitor-theme";
 const ORDER: Theme[] = ["system", "light", "dark"];
 
 function load(): Theme {

@@ -1,5 +1,5 @@
-use gitmonitor::git_reader::read_status;
-use gitmonitor::model::{RepoRef, RepoState, VcsKind};
+use repositorymonitor::git_reader::read_status;
+use repositorymonitor::model::{RepoRef, RepoState, VcsKind};
 use std::path::Path;
 use std::process::Command;
 

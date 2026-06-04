@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "GitMonitor",
+  "productName": "RepositoryMonitor",
   "version": "0.1.0",
-  "identifier": "com.dgitx.gitmonitor",
+  "identifier": "com.dgitx.repositorymonitor",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "GitMonitor",
+        "title": "RepositoryMonitor",
         "width": 1000,
         "height": 700,
         "minWidth": 600,

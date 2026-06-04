@@ -16,7 +16,7 @@
 
 <header>
   <div class="row">
-    <strong>GitMonitor</strong>
+    <strong>RepositoryMonitor</strong>
     <button onclick={onRefresh} title="새로고침">⟳</button>
     <button onclick={onSettings} title="설정">⚙</button>
     <button onclick={() => theme.cycle()} title="테마: {theme.current} (클릭: system→light→dark)">{theme.icon}</button>

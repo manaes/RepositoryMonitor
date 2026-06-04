@@ -1,5 +1,5 @@
-use gitmonitor::model::{RepoRef, VcsKind};
-use gitmonitor::svn_reader::read_svn_status;
+use repositorymonitor::model::{RepoRef, VcsKind};
+use repositorymonitor::svn_reader::read_svn_status;
 use std::path::Path;
 use std::process::Command;
 

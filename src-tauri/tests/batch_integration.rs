@@ -1,5 +1,5 @@
-use gitmonitor::batch::run_batch;
-use gitmonitor::model::{RepoRef, VcsKind};
+use repositorymonitor::batch::run_batch;
+use repositorymonitor::model::{RepoRef, VcsKind};
 use std::path::Path;
 use std::process::Command;
 use std::time::Duration;

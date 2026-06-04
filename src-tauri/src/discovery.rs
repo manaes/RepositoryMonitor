@@ -205,7 +205,7 @@ mod tests {
     #[test]
     fn category_is_first_segment_under_root() {
         let root = Path::new("/Users/me/@Projects");
-        assert_eq!(category_for(Path::new("/Users/me/@Projects/2_App/GitMonitor"), root), "2_App");
+        assert_eq!(category_for(Path::new("/Users/me/@Projects/2_App/RepositoryMonitor"), root), "2_App");
         assert_eq!(category_for(Path::new("/Users/me/@Projects/@ITXRtsp/edge-client-swift"), root), "@ITXRtsp");
     }
 

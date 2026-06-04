@@ -39,11 +39,11 @@ impl Default for Config {
 
 use std::path::{Path, PathBuf};
 
-/// 설정 파일 경로: 플랫폼 config 디렉토리 하위 GitMonitor/config.json
+/// 설정 파일 경로: 플랫폼 config 디렉토리 하위 RepositoryMonitor/config.json
 pub fn config_path() -> PathBuf {
     dirs_next::config_dir()
         .unwrap_or_else(|| PathBuf::from("."))
-        .join("GitMonitor")
+        .join("RepositoryMonitor")
         .join("config.json")
 }
 
@@ -150,6 +150,6 @@ mod tests {
     #[test]
     fn config_path_ends_with_expected() {
         let p = config_path();
-        assert!(p.ends_with("GitMonitor/config.json"));
+        assert!(p.ends_with("RepositoryMonitor/config.json"));
     }
 }

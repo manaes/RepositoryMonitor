@@ -1318,23 +1318,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gitmonitor"
-version = "0.1.0"
-dependencies = [
- "dirs-next",
- "globset",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-single-instance",
- "tempfile",
- "tokio",
- "walkdir",
-]
-
-[[package]]
 name = "glib"
 version = "0.18.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2752,6 +2735,23 @@ name = "regex-syntax"
 version = "0.8.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a"
+
+[[package]]
+name = "repositorymonitor"
+version = "0.1.0"
+dependencies = [
+ "dirs-next",
+ "globset",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-single-instance",
+ "tempfile",
+ "tokio",
+ "walkdir",
+]
 
 [[package]]
 name = "reqwest"

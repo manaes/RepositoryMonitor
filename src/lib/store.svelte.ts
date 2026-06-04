@@ -3,7 +3,7 @@ import type { Config, RepoStatus } from "./types";
 import { getConfig, listenReposUpdated, refreshStatus, scanRepos, setConfig } from "./tauri";
 
 /** repos_updated 이벤트를 구독하는 reactive store. seq로 오래된 스냅샷 폐기. */
-class GitMonitorStore {
+class RepositoryMonitorStore {
   repos = $state<RepoStatus[]>([]);
   config = $state<Config | null>(null);
   lastSeq = $state(0);
@@ -58,4 +58,4 @@ class GitMonitorStore {
   }
 }
 
-export const store = new GitMonitorStore();
+export const store = new RepositoryMonitorStore();
