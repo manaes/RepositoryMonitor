@@ -1,8 +1,11 @@
 pub mod app_state;
 pub mod config;
 pub mod discovery;
+pub mod emit_gate;
 pub mod git_reader;
 pub mod model;
+pub mod scheduler;
+pub mod snapshot;
 
 /// Tauri 앱 진입점. (커맨드/스케줄러 배선은 후속 태스크에서 채움)
 pub fn run() {
