@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { store } from "./lib/store.svelte";
+  import { theme } from "./lib/theme.svelte";
   import Header from "./components/Header.svelte";
   import Grid from "./components/Grid.svelte";
   import Settings from "./components/Settings.svelte";
@@ -14,6 +15,7 @@
   let ctxMenu = $state<{ repo: RepoStatus; x: number; y: number } | null>(null);
 
   onMount(() => {
+    theme.init();
     store.init();
     const t = setInterval(() => (now = Math.floor(Date.now() / 1000)), 30000);
     return () => {

@@ -1,10 +1,10 @@
 :root {
   font-family: -apple-system, system-ui, "Helvetica Neue", sans-serif;
   font-size: 14px;
-  /* 네이티브 폼 컨트롤/스크롤바가 시스템 외관(라이트/다크)을 따르도록 */
+  /* 기본: 시스템 외관 자동 추종(수동 토글이 data-theme로 override) */
   color-scheme: light dark;
 
-  /* 라이트 모드 팔레트 */
+  /* 라이트 팔레트 */
   --bg: #fafafa;
   --fg: #222;
   --fg-muted: #777;
@@ -21,11 +21,16 @@
   --accent-fg: #fff;
   --danger: #c33;
   --shadow: rgba(0, 0, 0, 0.08);
+  /* 클린하지 않은 카드 강조(붉은 계열) */
+  --dirty-bg: #fff4f4;
+  --dirty-accent: #e57373;
+  --conflict-bg: #ffe1e1;
 }
 
-/* macOS 시스템 외관을 따르는 다크 모드 */
+/* 다크 팔레트 (시스템 다크 — 단, 수동으로 light 강제하면 제외) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #1e1e1e;
     --fg: #e4e4e4;
     --fg-muted: #9a9a9a;
@@ -42,7 +47,39 @@
     --accent-fg: #0a0a0a;
     --danger: #ff7a7a;
     --shadow: rgba(0, 0, 0, 0.45);
+    --dirty-bg: #2e2222;
+    --dirty-accent: #b15a5a;
+    --conflict-bg: #3e2424;
   }
+}
+
+/* 수동 다크 강제 (시스템이 라이트여도) */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1e1e1e;
+  --fg: #e4e4e4;
+  --fg-muted: #9a9a9a;
+  --fg-faint: #6f6f6f;
+  --border: #3a3a3a;
+  --border-light: #2e2e2e;
+  --card-bg: #262626;
+  --header-bg: #222222d9;
+  --panel-bg: #262626;
+  --badge-bg: #383838;
+  --badge-conflict-bg: #5a2a2a;
+  --badge-ok-bg: #2a4a2a;
+  --accent: #4a9eff;
+  --accent-fg: #0a0a0a;
+  --danger: #ff7a7a;
+  --shadow: rgba(0, 0, 0, 0.45);
+  --dirty-bg: #2e2222;
+  --dirty-accent: #b15a5a;
+  --conflict-bg: #3e2424;
+}
+
+/* 수동 라이트 강제 (시스템이 다크여도 라이트 팔레트는 :root 기본을 사용) */
+:root[data-theme="light"] {
+  color-scheme: light;
 }
 
 * {

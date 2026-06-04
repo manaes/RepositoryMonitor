@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { RepoStatus } from "../lib/types";
   import { summarize } from "../lib/logic";
+  import { theme } from "../lib/theme.svelte";
 
   let { repos, search = $bindable(), problemsOnly = $bindable(), onRefresh, onSettings }: {
     repos: RepoStatus[];
@@ -18,6 +19,7 @@
     <strong>GitMonitor</strong>
     <button onclick={onRefresh} title="새로고침">⟳</button>
     <button onclick={onSettings} title="설정">⚙</button>
+    <button onclick={() => theme.cycle()} title="테마: {theme.current} (클릭: system→light→dark)">{theme.icon}</button>
     <input class="search" placeholder="search" bind:value={search} />
     <label><input type="checkbox" bind:checked={problemsOnly} /> 문제만</label>
   </div>

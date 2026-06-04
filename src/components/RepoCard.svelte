@@ -38,7 +38,14 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="card" class:clean class:error={!!repo.error} oncontextmenu={(e) => onContext(repo, e)}>
+<div
+  class="card"
+  class:clean
+  class:error={!!repo.error}
+  class:conflict={repo.conflicts > 0}
+  class:dirty={!clean && !repo.error && repo.conflicts === 0}
+  oncontextmenu={(e) => onContext(repo, e)}
+>
   <div class="head">
     <span class="name">{repo.name}</span>
     {#if repo.error}
@@ -91,10 +98,19 @@
     gap: 4px;
   }
   .card.clean {
-    opacity: 0.75;
+    opacity: 0.6;
+  }
+  .card.dirty {
+    background: var(--dirty-bg);
+    box-shadow: inset 3px 0 0 var(--dirty-accent);
+  }
+  .card.conflict {
+    background: var(--conflict-bg);
+    box-shadow: inset 3px 0 0 var(--danger);
   }
   .card.error {
     border-color: var(--danger);
+    background: var(--dirty-bg);
   }
   .head {
     display: flex;
