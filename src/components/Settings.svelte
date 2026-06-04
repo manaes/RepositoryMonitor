@@ -73,11 +73,11 @@
     top: 0;
     bottom: 0;
     width: 360px;
-    background: #fff;
-    border-left: 1px solid #ddd;
+    background: var(--panel-bg);
+    border-left: 1px solid var(--border);
     padding: 12px;
     overflow-y: auto;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+    box-shadow: -2px 0 8px var(--shadow);
   }
   .hd {
     display: flex;
@@ -88,7 +88,7 @@
   }
   h3 {
     font-size: 0.85em;
-    color: #555;
+    color: var(--fg-muted);
   }
   .item {
     display: flex;
@@ -118,8 +118,8 @@
     margin-top: 16px;
   }
   .primary {
-    background: #06c;
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-fg);
     border: none;
     padding: 6px 16px;
     border-radius: 6px;

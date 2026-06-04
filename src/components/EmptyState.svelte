@@ -12,10 +12,10 @@
   .empty {
     text-align: center;
     padding: 60px 20px;
-    color: #666;
+    color: var(--fg-muted);
   }
   .hint {
     font-size: 0.8em;
-    color: #aaa;
+    color: var(--fg-faint);
   }
 </style>

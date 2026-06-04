@@ -43,6 +43,16 @@ class GitMonitorStore {
     await this.rescan(); // 루트/제외 변경 반영
   }
 
+  /** 해당 repo 절대경로를 exclude_globs에 추가하고 재스캔(그리드에서 사라짐). */
+  async excludeRepo(path: string): Promise<void> {
+    if (!this.config) return;
+    if (this.config.exclude_globs.includes(path)) return;
+    await this.saveConfig({
+      ...this.config,
+      exclude_globs: [...this.config.exclude_globs, path],
+    });
+  }
+
   get hasRoots(): boolean {
     return (this.config?.roots.length ?? 0) > 0;
   }

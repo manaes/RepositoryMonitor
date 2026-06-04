@@ -28,9 +28,10 @@
   header {
     position: sticky;
     top: 0;
-    background: #fff;
-    border-bottom: 1px solid #eee;
-    padding: 8px;
+    background: var(--header-bg);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border-light);
+    padding: 8px 16px;
   }
   .row {
     display: flex;
@@ -42,7 +43,7 @@
   }
   .summary {
     font-size: 0.78em;
-    color: #777;
+    color: var(--fg-muted);
     margin-top: 4px;
   }
 </style>

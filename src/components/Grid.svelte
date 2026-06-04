@@ -3,12 +3,13 @@
   import { groupByCategory, filterProblems } from "../lib/logic";
   import RepoCard from "./RepoCard.svelte";
 
-  let { repos, now, staleDays, problemsOnly, search }: {
+  let { repos, now, staleDays, problemsOnly, search, onContext }: {
     repos: RepoStatus[];
     now: number;
     staleDays: number;
     problemsOnly: boolean;
     search: string;
+    onContext: (repo: RepoStatus, e: MouseEvent) => void;
   } = $props();
 
   const visible = $derived.by(() => {
@@ -24,7 +25,7 @@
     <h2>{group.category} <span class="count">({group.repos.length})</span></h2>
     <div class="cards">
       {#each group.repos as repo (repo.path)}
-        <RepoCard {repo} {now} {staleDays} />
+        <RepoCard {repo} {now} {staleDays} {onContext} />
       {/each}
     </div>
   </section>
@@ -33,15 +34,16 @@
 <style>
   .group {
     margin: 12px 0;
+    padding: 0 16px;
   }
   h2 {
     font-size: 0.9em;
-    color: #444;
-    border-bottom: 1px solid #eee;
+    color: var(--fg-muted);
+    border-bottom: 1px solid var(--border-light);
     padding-bottom: 4px;
   }
   .count {
-    color: #999;
+    color: var(--fg-faint);
     font-weight: 400;
   }
   .cards {

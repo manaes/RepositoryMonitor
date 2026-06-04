@@ -3,7 +3,12 @@
   import { openAction } from "../lib/tauri";
   import { formatFetched, isStale, isClean } from "../lib/logic";
 
-  let { repo, now, staleDays }: { repo: RepoStatus; now: number; staleDays: number } = $props();
+  let { repo, now, staleDays, onContext }: {
+    repo: RepoStatus;
+    now: number;
+    staleDays: number;
+    onContext: (repo: RepoStatus, e: MouseEvent) => void;
+  } = $props();
 
   const clean = $derived(isClean(repo));
   const stale = $derived(isStale(repo.last_fetch, now, staleDays));
@@ -32,7 +37,8 @@
   };
 </script>
 
-<div class="card" class:clean class:error={!!repo.error}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="card" class:clean class:error={!!repo.error} oncontextmenu={(e) => onContext(repo, e)}>
   <div class="head">
     <span class="name">{repo.name}</span>
     {#if repo.error}
@@ -75,7 +81,8 @@
 
 <style>
   .card {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
     border-radius: 8px;
     padding: 8px 10px;
     min-width: 180px;
@@ -84,10 +91,10 @@
     gap: 4px;
   }
   .card.clean {
-    opacity: 0.8;
+    opacity: 0.75;
   }
   .card.error {
-    border-color: #e55;
+    border-color: var(--danger);
   }
   .head {
     display: flex;
@@ -99,7 +106,7 @@
     font-weight: 600;
   }
   .branch {
-    color: #555;
+    color: var(--fg-muted);
     font-size: 0.85em;
   }
   .detached {
@@ -114,24 +121,24 @@
     font-size: 0.75em;
     padding: 1px 5px;
     border-radius: 4px;
-    background: #eee;
+    background: var(--badge-bg);
   }
   .badge.conflict,
   .badge.err {
-    background: #fdd;
+    background: var(--badge-conflict-bg);
   }
   .badge.behind.stale {
     opacity: 0.5;
   }
   .badge.ok {
-    background: #dfd;
+    background: var(--badge-ok-bg);
   }
   .meta {
     font-size: 0.72em;
-    color: #888;
+    color: var(--fg-faint);
   }
   .meta.err {
-    color: #c33;
+    color: var(--danger);
   }
   .actions {
     display: flex;

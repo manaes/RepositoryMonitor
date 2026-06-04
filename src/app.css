@@ -1,8 +1,48 @@
 :root {
   font-family: -apple-system, system-ui, "Helvetica Neue", sans-serif;
   font-size: 14px;
-  color: #222;
-  background: #fafafa;
+  /* 네이티브 폼 컨트롤/스크롤바가 시스템 외관(라이트/다크)을 따르도록 */
+  color-scheme: light dark;
+
+  /* 라이트 모드 팔레트 */
+  --bg: #fafafa;
+  --fg: #222;
+  --fg-muted: #777;
+  --fg-faint: #999;
+  --border: #ddd;
+  --border-light: #eee;
+  --card-bg: #fff;
+  --header-bg: #ffffffd9;
+  --panel-bg: #fff;
+  --badge-bg: #eee;
+  --badge-conflict-bg: #fdd;
+  --badge-ok-bg: #dfd;
+  --accent: #06c;
+  --accent-fg: #fff;
+  --danger: #c33;
+  --shadow: rgba(0, 0, 0, 0.08);
+}
+
+/* macOS 시스템 외관을 따르는 다크 모드 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #e4e4e4;
+    --fg-muted: #9a9a9a;
+    --fg-faint: #6f6f6f;
+    --border: #3a3a3a;
+    --border-light: #2e2e2e;
+    --card-bg: #262626;
+    --header-bg: #222222d9;
+    --panel-bg: #262626;
+    --badge-bg: #383838;
+    --badge-conflict-bg: #5a2a2a;
+    --badge-ok-bg: #2a4a2a;
+    --accent: #4a9eff;
+    --accent-fg: #0a0a0a;
+    --danger: #ff7a7a;
+    --shadow: rgba(0, 0, 0, 0.45);
+  }
 }
 
 * {
@@ -11,6 +51,8 @@
 
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--fg);
 }
 
 button {
