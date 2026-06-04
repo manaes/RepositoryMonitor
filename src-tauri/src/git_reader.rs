@@ -190,28 +190,7 @@ pub fn last_fetch(repo: &str) -> Option<i64> {
 /// RepoRef에 휘발성 git 상태를 채워 RepoStatus 생성. now=배치 시각(epoch).
 /// git status 실패 시 error만 세팅하고 나머지는 기본값.
 pub fn read_status(repo: &RepoRef, now: i64) -> RepoStatus {
-    let mut st = RepoStatus {
-        path: repo.path.clone(),
-        name: repo.name.clone(),
-        category: repo.category.clone(),
-        branch: None,
-        detached_sha: None,
-        upstream: None,
-        has_upstream: false,
-        ahead: None,
-        behind: None,
-        staged: 0,
-        modified: 0,
-        untracked: 0,
-        conflicts: 0,
-        stash: 0,
-        is_clean: true,
-        state: RepoState::Clean,
-        worktrees: 1,
-        last_fetch: None,
-        last_checked: now,
-        error: None,
-    };
+    let mut st = RepoStatus::from_ref(repo, now);
 
     match run_git(&repo.path, &["status", "--porcelain=v2", "--branch"]) {
         Ok(text) => {

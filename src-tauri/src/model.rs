@@ -43,6 +43,50 @@ pub struct RepoStatus {
     pub error: Option<String>,
 }
 
+/// 외부 앱 열기 액션 종류(프론트→백엔드 IPC). 경로 복사는 프론트 navigator.clipboard 담당이라 제외.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ActionKind {
+    OpenFinder,
+    OpenTerminal,
+    OpenSourceTree,
+}
+
+/// repos_updated 이벤트 payload. seq로 프론트가 오래된 스냅샷을 폐기.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RepoSnapshot {
+    pub seq: u64,
+    pub repos: Vec<RepoStatus>,
+}
+
+impl RepoStatus {
+    /// RepoRef로부터 기본(clean) RepoStatus를 만든다. git 읽기 전/실패 시 베이스로 사용.
+    pub fn from_ref(repo: &RepoRef, now: i64) -> Self {
+        RepoStatus {
+            path: repo.path.clone(),
+            name: repo.name.clone(),
+            category: repo.category.clone(),
+            branch: None,
+            detached_sha: None,
+            upstream: None,
+            has_upstream: false,
+            ahead: None,
+            behind: None,
+            staged: 0,
+            modified: 0,
+            untracked: 0,
+            conflicts: 0,
+            stash: 0,
+            is_clean: true,
+            state: RepoState::Clean,
+            worktrees: 1,
+            last_fetch: None,
+            last_checked: now,
+            error: None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -68,5 +112,36 @@ mod tests {
         let r = RepoRef { path: "/r".into(), name: "r".into(), category: "lib".into() };
         let back: RepoRef = serde_json::from_str(&serde_json::to_string(&r).unwrap()).unwrap();
         assert_eq!(r, back);
+    }
+
+    #[test]
+    fn action_kind_serializes_snake_case() {
+        assert_eq!(serde_json::to_string(&ActionKind::OpenFinder).unwrap(), "\"open_finder\"");
+        assert_eq!(serde_json::to_string(&ActionKind::OpenSourceTree).unwrap(), "\"open_source_tree\"");
+        let back: ActionKind = serde_json::from_str("\"open_terminal\"").unwrap();
+        assert_eq!(back, ActionKind::OpenTerminal);
+    }
+
+    #[test]
+    fn repo_snapshot_serializes() {
+        let snap = RepoSnapshot { seq: 3, repos: vec![] };
+        let j = serde_json::to_value(&snap).unwrap();
+        assert_eq!(j["seq"], 3);
+        assert!(j["repos"].is_array());
+    }
+
+    #[test]
+    fn from_ref_builds_clean_placeholder() {
+        let r = RepoRef { path: "/r".into(), name: "r".into(), category: "c".into() };
+        let st = RepoStatus::from_ref(&r, 999);
+        assert_eq!(st.path, "/r");
+        assert_eq!(st.name, "r");
+        assert_eq!(st.category, "c");
+        assert_eq!(st.last_checked, 999);
+        assert!(st.is_clean);
+        assert_eq!(st.error, None);
+        assert_eq!(st.ahead, None);
+        assert_eq!(st.worktrees, 1);
+        assert_eq!(st.state, RepoState::Clean);
     }
 }
