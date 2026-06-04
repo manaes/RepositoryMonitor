@@ -59,6 +59,97 @@ pub fn category_for(repo_path: &Path, root: &Path) -> String {
     }
 }
 
+use crate::model::RepoRef;
+use std::collections::BTreeSet;
+use walkdir::WalkDir;
+
+/// discover 입력. 참조만 들고 있어 호출부 소유권을 건드리지 않음.
+pub struct DiscoveryConfig<'a> {
+    pub roots: &'a [String],
+    pub manual_paths: &'a [String],
+    pub exclude_globs: &'a [String],
+    pub scan_depth: u32,
+}
+
+/// 탐색 중 descent를 막을 무거운 디렉토리 이름.
+const PRUNE_DIRS: &[&str] = &["node_modules", "target", "Pods", ".build", ".git"];
+
+/// 등록 루트 스캔 + 수동 경로를 합쳐 RepoRef 목록 산출. 제외 글롭 적용, 경로 dedup.
+pub fn discover(cfg: &DiscoveryConfig) -> Vec<RepoRef> {
+    let excl = build_exclude_set(cfg.exclude_globs);
+    let mut seen: BTreeSet<String> = BTreeSet::new();
+    let mut out: Vec<RepoRef> = Vec::new();
+
+    for root in cfg.roots {
+        let root_path = Path::new(root);
+        let walker = WalkDir::new(root_path)
+            .max_depth(cfg.scan_depth as usize)
+            .follow_links(false)
+            .into_iter()
+            .filter_entry(|e| {
+                // 루트 자신은 통과, 그 외 PRUNE 디렉토리는 descent 차단
+                if e.depth() == 0 {
+                    return true;
+                }
+                let name = e.file_name().to_string_lossy();
+                !PRUNE_DIRS.contains(&name.as_ref())
+            });
+
+        for entry in walker.filter_map(|e| e.ok()) {
+            if !entry.file_type().is_dir() {
+                continue;
+            }
+            let dir = entry.path();
+            if is_git_repo_dir(dir) {
+                let cat = category_for(dir, root_path);
+                push_repo(dir, cat, &excl, &mut seen, &mut out);
+            }
+        }
+    }
+
+    for mp in cfg.manual_paths {
+        let p = Path::new(mp);
+        if !is_git_repo_dir(p) {
+            continue;
+        }
+        // 어느 루트 하위면 그 루트 기준 카테고리, 아니면 (manual)
+        let cat = cfg
+            .roots
+            .iter()
+            .map(Path::new)
+            .find(|r| p.starts_with(r))
+            .map(|r| category_for(p, r))
+            .unwrap_or_else(|| "(manual)".to_string());
+        push_repo(p, cat, &excl, &mut seen, &mut out);
+    }
+
+    out
+}
+
+/// 제외 글롭 통과 + dedup 후 RepoRef 추가.
+fn push_repo(
+    dir: &Path,
+    category: String,
+    excl: &globset::GlobSet,
+    seen: &mut BTreeSet<String>,
+    out: &mut Vec<RepoRef>,
+) {
+    let abs = std::fs::canonicalize(dir).unwrap_or_else(|_| dir.to_path_buf());
+    let key = abs.to_string_lossy().into_owned();
+    if excl.is_match(&key) || !seen.insert(key.clone()) {
+        return;
+    }
+    let name = abs
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    out.push(RepoRef {
+        path: key,
+        name,
+        category,
+    });
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
