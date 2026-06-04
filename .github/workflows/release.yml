@@ -70,6 +70,7 @@ jobs:
             ```bash
             xattr -cr "/Applications/RepositoryMonitor.app"
             ```
+          generateReleaseNotes: true
           releaseDraft: false
           prerelease: false
           args: --target ${{ matrix.target }}
