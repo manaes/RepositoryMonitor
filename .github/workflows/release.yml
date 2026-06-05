@@ -33,7 +33,7 @@ jobs:
               const r = await github.rest.repos.createRelease({
                 owner, repo,
                 tag_name: tag,
-                name: `RepositoryMonitor ${tag}`,
+                name: tag,
                 body: [
                   `## RepositoryMonitor ${tag}`,
                   '',
