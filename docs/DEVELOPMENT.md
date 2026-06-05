@@ -57,8 +57,7 @@ cargo build
 
 - `tauri.conf.json`: 단일 `main` 윈도우, `identifier = com.dgitx.repositorymonitor`, `frontendDist = ../dist`(repo 루트), `beforeBuildCommand = pnpm build`.
 - 프론트 산출물 `dist/`와 `src-tauri/target`, `src-tauri/gen`, `node_modules`는 gitignore.
-- 앱 아이콘(`src-tauri/icons/`)은 현재 형제 프로젝트에서 복제한 임시본 — 배포 전 교체 필요.
-- 코드 서명/공증(notarization)은 미설정. macOS 첫 실행 Gatekeeper 경고는 `xattr -cr "/Applications/RepositoryMonitor.app"` 또는 시스템 설정에서 허용.
+- 코드 서명/공증: release CI에서 Apple Developer ID로 **서명 + 공증(notarization)** 수행(시크릿 `APPLE_*` 6개 + updater `TAURI_SIGNING_PRIVATE_KEY`). 셋업 절차는 [NOTARIZATION.md](NOTARIZATION.md). 시크릿 미설정 시 미서명 빌드로 폴백.
 
 ## 코드 스타일
 

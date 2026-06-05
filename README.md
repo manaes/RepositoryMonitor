@@ -12,7 +12,9 @@
 
 ## 스크린샷
 
-> 준비 중. 카테고리(`2_App` / `4_Server` / `3_Library` …)별로 묶인 카드 그리드 — 각 카드에 브랜치·미커밋 신호·fetched 시각이 표시되고, 깨끗한 repo는 흐리게, 변경이 있는 repo는 붉은 배경으로 강조된다.
+![RepositoryMonitor — 멀티 레포 상태 그리드](docs/screenshot.png)
+
+카테고리(`2_App` / `3_Library` / `4_Server` …)별로 묶인 카드 그리드. 각 카드에 브랜치·미커밋 신호(`●`/`?`/`+`)·worktree·`fetched` 시각이 표시되고, 깨끗한 repo는 흐리게, 변경이 있는 repo는 붉게 강조된다.
 
 ---
 
@@ -42,7 +44,9 @@
 
 ## 설치 / 빌드
 
-> 아직 배포 릴리즈가 없어 소스에서 빌드한다. (Prerequisite: [Rust](https://rustup.rs), Node 18+, [pnpm](https://pnpm.io), 그리고 SVN 추적을 쓰려면 `svn` CLI)
+**다운로드**: [Releases](https://github.com/manaes/RepositoryMonitor/releases/latest)에서 macOS(.dmg)·Windows(.msi) 설치파일. macOS 빌드는 Apple Developer ID로 **서명·공증**되어 바로 실행된다.
+
+소스에서 빌드 (Prerequisite: [Rust](https://rustup.rs), Node 18+, [pnpm](https://pnpm.io), SVN 추적 시 `svn` CLI):
 
 ```bash
 pnpm install        # 의존성 설치 (pnpm-workspace.yaml의 allowBuilds로 esbuild 빌드 허용)
