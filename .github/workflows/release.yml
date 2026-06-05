@@ -12,7 +12,55 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  # 1) 릴리즈(드래프트)를 단 한 번만 생성 — matrix 잡들의 "release already exists" 레이스 제거
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create.outputs.result }}
+    steps:
+      - name: Create or find draft release
+        id: create
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = process.env.GITHUB_REF_NAME;
+            const { owner, repo } = context.repo;
+            let id;
+            try {
+              const r = await github.rest.repos.getReleaseByTag({ owner, repo, tag });
+              id = r.data.id;
+            } catch (e) {
+              const r = await github.rest.repos.createRelease({
+                owner, repo,
+                tag_name: tag,
+                name: `RepositoryMonitor ${tag}`,
+                body: [
+                  `## RepositoryMonitor ${tag}`,
+                  '',
+                  '여러 git/svn 저장소의 상태를 한 창에서 보는 데스크톱 대시보드.',
+                  '',
+                  '### 설치',
+                  '| 플랫폼 | 파일 |',
+                  '|---|---|',
+                  '| macOS Apple Silicon | `*_aarch64.dmg` |',
+                  '| macOS Intel | `*_x64.dmg` |',
+                  '| Windows | `*_x64_en-US.msi` 또는 `*_x64-setup.exe` |',
+                  '',
+                  '> **macOS**: 서명/공증되지 않은 앱이라 첫 실행 시 "손상되었기 때문에 열 수 없습니다"가 뜰 수 있습니다. 아래 명령으로 격리 속성을 제거하세요:',
+                  '> ```bash',
+                  '> xattr -cr "/Applications/RepositoryMonitor.app"',
+                  '> ```',
+                ].join('\n'),
+                draft: true,
+                prerelease: false,
+              });
+              id = r.data.id;
+            }
+            return id;
+
+  # 2) 플랫폼별 빌드 → 위 릴리즈에 업로드(생성하지 않음)
   build:
+    needs: create-release
     strategy:
       fail-fast: false
       matrix:
@@ -54,25 +102,23 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'RepositoryMonitor ${{ github.ref_name }}'
-          releaseBody: |
-            ## RepositoryMonitor ${{ github.ref_name }}
-
-            여러 git/svn 저장소의 상태를 한 창에서 한눈에 보는 데스크톱 대시보드입니다.
-
-            ### 설치
-            | 플랫폼 | 파일 |
-            |---|---|
-            | macOS Apple Silicon | `*_aarch64.dmg` |
-            | macOS Intel | `*_x64.dmg` |
-            | Windows | `*_x64_en-US.msi` 또는 `*_x64-setup.exe` |
-
-            **macOS 첫 실행 시** Gatekeeper 경고가 뜨면:
-            ```bash
-            xattr -cr "/Applications/RepositoryMonitor.app"
-            ```
-          generateReleaseNotes: true
-          releaseDraft: false
-          prerelease: false
+          releaseId: ${{ needs.create-release.outputs.release_id }}
           args: --target ${{ matrix.target }}
+
+  # 3) 모든 빌드 성공 후 드래프트 해제(공개)
+  publish-release:
+    needs: [create-release, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish release
+        uses: actions/github-script@v7
+        env:
+          release_id: ${{ needs.create-release.outputs.release_id }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            await github.rest.repos.updateRelease({
+              owner, repo,
+              release_id: Number(process.env.release_id),
+              draft: false,
+            });

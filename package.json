@@ -1,6 +1,6 @@
 {
   "name": "repositorymonitor",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "여러 git·svn 저장소의 상태를 한눈에 보는 macOS 네이티브 대시보드",
   "license": "MIT",
   "type": "module",
