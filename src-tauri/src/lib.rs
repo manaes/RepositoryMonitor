@@ -68,6 +68,12 @@ pub fn run() {
                         st.polling_active.load(Ordering::SeqCst),
                         st.in_flight.load(Ordering::SeqCst),
                     ) {
+                        // repo 목록이 비어 있으면 discovery부터 재시도.
+                        // (시작 시 폴더 접근 권한(TCC)이 거부/대기 상태였다가 나중에 허용된 경우,
+                        //  재시작 없이 다음 tick에서 복구되도록)
+                        if st.repos.lock().await.is_empty() {
+                            let _ = commands::do_scan(&st).await;
+                        }
                         let _ = commands::do_refresh(&handle, &st).await;
                     }
                 }

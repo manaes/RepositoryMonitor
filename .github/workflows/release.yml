@@ -18,9 +18,28 @@ jobs:
     outputs:
       release_id: ${{ steps.create.outputs.result }}
     steps:
+      - uses: actions/checkout@v4
+
+      # 릴리즈 노트: docs/release-notes/<tag>.md 가 있으면 사용, 없으면 default.md
+      - name: Read release notes
+        id: notes
+        shell: bash
+        run: |
+          NOTES_FILE="docs/release-notes/${GITHUB_REF_NAME}.md"
+          if [[ ! -f "$NOTES_FILE" ]]; then
+            NOTES_FILE="docs/release-notes/default.md"
+          fi
+          {
+            echo 'body<<EOF'
+            if [[ -f "$NOTES_FILE" ]]; then cat "$NOTES_FILE"; else echo "RepositoryMonitor ${GITHUB_REF_NAME}"; fi
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create or find draft release
         id: create
         uses: actions/github-script@v7
+        env:
+          BODY: ${{ steps.notes.outputs.body }}
         with:
           script: |
             const tag = process.env.GITHUB_REF_NAME;
@@ -34,20 +53,7 @@ jobs:
                 owner, repo,
                 tag_name: tag,
                 name: tag,
-                body: [
-                  `## RepositoryMonitor ${tag}`,
-                  '',
-                  '여러 git/svn 저장소의 상태를 한 창에서 보는 데스크톱 대시보드.',
-                  '',
-                  '### 설치',
-                  '| 플랫폼 | 파일 |',
-                  '|---|---|',
-                  '| macOS Apple Silicon | `*_aarch64.dmg` |',
-                  '| macOS Intel | `*_x64.dmg` |',
-                  '| Windows | `*_x64_en-US.msi` 또는 `*_x64-setup.exe` |',
-                  '',
-                  '> macOS 빌드는 Apple Developer ID로 서명·공증되어 별도 Gatekeeper 우회 없이 바로 실행됩니다.',
-                ].join('\n'),
+                body: process.env.BODY,
                 draft: true,
                 prerelease: false,
               });
