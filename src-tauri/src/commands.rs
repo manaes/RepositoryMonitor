@@ -117,12 +117,21 @@ pub async fn refresh_status(app: AppHandle, state: State<'_, Arc<AppState>>) -> 
     do_refresh(&app, state.inner()).await
 }
 
+/// repo_path가 현재 발견된 repo 목록에 있는지 검증.
+/// 웹뷰에서 넘어온 임의 문자열이 그대로 외부 프로세스 인자로 가는 것을 막는다.
+pub async fn is_known_repo_path(state: &Arc<AppState>, repo_path: &str) -> bool {
+    state.repos.lock().await.iter().any(|r| r.path == repo_path)
+}
+
 #[tauri::command]
 pub async fn open_action(
     state: State<'_, Arc<AppState>>,
     repo_path: String,
     kind: ActionKind,
 ) -> Result<(), String> {
+    if !is_known_repo_path(state.inner(), &repo_path).await {
+        return Err(format!("알 수 없는 저장소 경로: {repo_path}"));
+    }
     let terminal = state.config.lock().await.terminal_app.clone();
     actions::run_action(&kind, &repo_path, &terminal)
 }
@@ -226,6 +235,18 @@ mod tests {
         assert!(res2.is_ok());
         assert_eq!(emitted2.get(), 0, "변화 없으면 두 번째 emit 없음");
         assert_eq!(state.seq.load(Ordering::SeqCst), 1, "emit 없으면 seq 유지");
+    }
+
+    /// 발견된 repo 목록에 있는 경로만 통과, 그 외(미발견 경로/임의 문자열)는 거부.
+    #[tokio::test]
+    async fn known_repo_path_validation() {
+        let state = state_with_repos(vec![rref("/home/u/proj")]);
+
+        assert!(is_known_repo_path(&state, "/home/u/proj").await);
+        assert!(!is_known_repo_path(&state, "/etc").await);
+        assert!(!is_known_repo_path(&state, "/home/u/proj/sub").await);
+        assert!(!is_known_repo_path(&state, "https://evil.example").await);
+        assert!(!is_known_repo_path(&state, "").await);
     }
 
     /// RAII 가드가 정상 경로에서 in_flight를 false로 되돌린 뒤, 후속 refresh가 다시 진행 가능한지.
